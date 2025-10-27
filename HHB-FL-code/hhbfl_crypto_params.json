@@ -1,0 +1,55 @@
+{
+  "ckks": {
+    "add_only_8k": {
+      "scheme": "CKKS",
+      "poly_modulus_degree": 8192,
+      "coeff_modulus_bits": [60, 40, 60],
+      "default_scale_bit": 40,
+      "rotations": "power-of-two + specific-index",
+      "security_target": 128,
+      "comment": "Add-only; 40-bit middle prime leaves one mult margin."
+    },
+    "balanced_16k": {
+      "scheme": "CKKS",
+      "poly_modulus_degree": 16384,
+      "coeff_modulus_bits": [60, 40, 40, 40, 60],
+      "default_scale_bit": 40,
+      "rotations": "power-of-two + baby-step-giant-step",
+      "security_target": 128,
+      "comment": "Default: larger slots and noise budget."
+    },
+    "high_prec_32k": {
+      "scheme": "CKKS",
+      "poly_modulus_degree": 32768,
+      "coeff_modulus_bits": [60, 40, 40, 40, 40, 40, 60],
+      "default_scale_bit": 40,
+      "rotations": "power-of-two + index-specific",
+      "security_target": 128,
+      "comment": "For very large bias vectors; heavier memory."
+    }
+  },
+  "paillier": {
+    "n_bits": 3072,
+    "encoder": {
+      "weight_quant_scale": 65536,
+      "per_coord_bound_formula": "M ≈ K*C*s + (C/ε)*ln(1/δ)*s",
+      "example_numbers": {
+        "K": 10,
+        "C": 5.0,
+        "epsilon": 1.0,
+        "delta": 1e-5,
+        "computed_M": 7049355
+      }
+    },
+    "comment": "Server/contract multiplies mod n^2; decryption off-chain."
+  },
+  "dp": {
+    "clipping": { "norm": "L1", "C": 5.0 },
+    "noise": { "mechanism": "Laplace", "epsilon_per_round": 1.0, "delta_global": 1e-5 },
+    "accounting": { "method": "RDP or advanced composition" }
+  },
+  "encoding_packing": {
+    "biases": { "packing": "CKKS", "slot_alignment": "pad to power-of-two" },
+    "weights": { "packing": "Paillier after quantization s=2^16" }
+  }
+}

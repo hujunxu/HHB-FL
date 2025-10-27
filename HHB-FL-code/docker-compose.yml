@@ -1,0 +1,163 @@
+# docker-compose.yml
+version: "3.9"
+
+x-common-env: &common_env
+  FL_ROUNDS: "5"
+  CLIP_C: "5.0"
+  EPSILON: "1.0"
+  SCALE_W: "65536"     # 2**16
+  CLIENTS: "10"
+
+services:
+  # -----------------------------
+  # 合约/链码服务（FastAPI + SQLite）
+  # -----------------------------
+  contract:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hhbfl-contract
+    command: >
+      bash -lc "uvicorn contract_api:app --host 0.0.0.0 --port 8000
+      --timeout-keep-alive 120"
+    environment:
+      <<: *common_env
+      LEDGER_PATH: "/app/ledger/hhbfl_ledger.db"
+      FRESH_WINDOW_SEC: "900"
+    volumes:
+      - ./volumes/ledger:/app/ledger
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8000/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [flnet]
+
+  # -----------------------------
+  # 10 个联邦客户端（client0 … client9）
+  # -----------------------------
+  client0:
+    build: .
+    container_name: hhbfl-client0
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 0
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client1:
+    build: .
+    container_name: hhbfl-client1
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 1
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client2:
+    build: .
+    container_name: hhbfl-client2
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 2
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client3:
+    build: .
+    container_name: hhbfl-client3
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 3
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client4:
+    build: .
+    container_name: hhbfl-client4
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 4
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client5:
+    build: .
+    container_name: hhbfl-client5
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 5
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client6:
+    build: .
+    container_name: hhbfl-client6
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 6
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client7:
+    build: .
+    container_name: hhbfl-client7
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 7
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client8:
+    build: .
+    container_name: hhbfl-client8
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 8
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+  client9:
+    build: .
+    container_name: hhbfl-client9
+    depends_on: { contract: { condition: service_healthy } }
+    command: >
+      bash -lc "python client.py --cid 9
+      --server http://contract:8000
+      --rounds ${FL_ROUNDS} --clip ${CLIP_C}
+      --epsilon ${EPSILON} --scale-w ${SCALE_W}"
+    environment: { <<: *common_env }
+    networks: [flnet]
+
+networks:
+  flnet:
+    driver: bridge
