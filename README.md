@@ -1,7 +1,7 @@
 # HHB-FL
 Implementation of HHB-FL: a blockchain-based federated learning framework with hierarchical homomorphic encryption and differential privacy.
 
-
+AIS Data Set  https://www.fisheries.noaa.gov/inport/item/55360
 HHB-FL is a research-oriented framework for privacy-preserving federated learning (FL), designed for IoMT and other distributed environments.
 It integrates hierarchical homomorphic encryption (Paillier + CKKS), differential privacy, and a blockchain-based smart-contract aggregator for on-chain verification and auditability.
 The repository provides both single-node simulation scripts and Docker-based distributed deployment to reproduce experiments and evaluate performance or security under various attack models.
